@@ -45,58 +45,63 @@ header{background:#ffffffed;position:sticky;top:0;z-index:20;box-shadow:0 3px 15
 <div class="field full"><label for="address">House / Flat Number *</label><input id="address" required placeholder="House or flat number"></div><div class="field full"><label for="apartment">Apartment / Building Name</label><input id="apartment" placeholder="Apartment or building name"></div><div class="field full"><label for="area">Street / Area / City *</label><input id="area" required placeholder="Street, area and city"></div><div class="field full"><label for="landmark">Nearby Landmark</label><input id="landmark" placeholder="Optional"></div><div class="field full"><button type="button" class="location-button" onclick="getLocation()">📍 Use My Current Location</button><p class="note" id="locationStatus">Location works on HTTPS or localhost if permission is allowed.</p></div><div id="serviceSchedule" class="field full" style="display:none"><label for="serviceDate">Preferred Service Date *</label><input id="serviceDate" type="date"><label for="serviceTime" style="margin-top:8px">Preferred Service Time *</label><select id="serviceTime"><option value="">Select a time</option><option>9:00 AM - 11:00 AM</option><option>11:00 AM - 1:00 PM</option><option>1:00 PM - 3:00 PM</option><option>3:00 PM - 5:00 PM</option><option>5:00 PM - 7:00 PM</option></select></div><div class="field full"><label for="notes">Additional Instructions</label><textarea id="notes" placeholder="Appliance details or additional instructions"></textarea></div></div><input type="hidden" id="latitude"><input type="hidden" id="longitude"></form></div>
 <div class="form-card"><h3>💳 Payment Preference</h3><div class="payment-options"><label class="payment-option"><input type="radio" name="payment" value="Cash on Service / Delivery" checked> 💵 Cash on Service / Delivery</label><label class="payment-option"><input type="radio" name="payment" value="PhonePe" > 📱 Pay with PhonePe</label><label class="payment-option"><input type="radio" name="payment" value="Google Pay"> 🌈 Pay with Google Pay</label><label class="payment-option"><input type="radio" name="payment" value="UPI ID"> 🏦 Pay using UPI ID</label></div><div style="background:#fff6e7;padding:12px;border-radius:10px;font-size:11px;color:#79551c;margin-bottom:15px"><strong>Payment note:</strong> Selecting an online option opens a compatible UPI app with the amount filled in. The customer must review and approve the payment. This static website cannot verify payment automatically.</div><h3>📋 Order Summary</h3><div id="checkoutSummary" class="note">No items selected.</div><div class="total"><span>Total</span><span id="checkoutTotal">₹0</span></div><button class="btn green" style="width:100%" onclick="submitOrder()">✅ Submit Booking</button><p class="note">After submission, the customer sees a thank-you message. The order details are sent to Krs.mf66@gmail.com after email activation. Online payments must be approved by the customer in their UPI app.</p></div>
 </div></div></section></section>
-<section id="screen-thankyou" class="screen"><section class="section"><div class="container" style="max-width:680px;text-align:center"><div class="panel" style="padding:36px 22px"><div style="font-size:64px;margin-bottom:12px">😊</div><span class="eyebrow">BOOKING SUBMITTED</span><h2 style="margin:10px 0">Thank You for Choosing Chimney & Stove Care!</h2><p style="color:var(--muted);margin:12px 0 22px">Your details have been recorded on this page. We appreciate your trust and look forward to helping you.</p><section id="screen-admin" class="screen">
+<section id="screen-thankyou" class="screen">
   <section class="section">
-    <div class="container">  <div class="section-head">
-    <span class="eyebrow">OWNER AREA</span>
-    <h2>Admin Panel</h2>
-    <p>Manage service names, prices, descriptions and product photos.</p>
-  </div>
+    <div class="container" style="max-width:680px;text-align:center">
+      <div class="panel" style="padding:36px 22px">
+        <div style="font-size:64px;margin-bottom:12px">😊</div>
+        <span class="eyebrow">BOOKING SUBMITTED</span>
+        <h2 style="margin:10px 0">Thank You for Choosing Chimney &amp; Stove Care!</h2>
+        <p style="color:var(--muted);margin:12px 0 22px">Your details have been recorded on this page. We appreciate your trust and look forward to helping you.</p>
+        <div id="thankyouDetails" style="text-align:left;background:#f4f9fa;border-radius:12px;padding:16px;margin:16px 0"></div>
+        <p id="emailStatus" class="note"></p>
+        <div class="actions" style="justify-content:center">
+          <button class="btn primary" onclick="showScreen('home')">Back to Home</button>
+          <button class="btn light" onclick="showScreen('parts')">Continue Shopping</button>
+        </div>
+      </div>
+    </div>
+  </section>
+</section>
 
-  <div class="admin-badge">
-    Admin changes are stored in this browser only.
-  </div>
-
-  <div id="adminLogin" class="form-card admin-form">
-    <h3>🔐 Admin Access</h3>
-
-    <label for="adminPassword">Enter Admin Password</label>
-    <input
-      type="password"
-      id="adminPassword"
-      placeholder="Enter password"
-      autocomplete="current-password"
-      style="width:100%;box-sizing:border-box;padding:12px;margin-top:8px;border:1px solid #ccc;border-radius:8px"
-    >
-
-    <button
-      class="btn primary"
-      type="button"
-      style="width:100%;margin-top:12px"
-      onclick="adminLogin()"
-    >Login</button>
-  </div>
-
-  <div id="adminDashboard" style="display:none">
-    <div class="panel">
-      <div class="admin-tabs">
-        <button class="selected" onclick="adminTab('chimney',this)">Chimney</button>
-        <button onclick="adminTab('stove',this)">Gas Stove</button>
-        <button onclick="adminTab('parts',this)">Spare Parts</button>
+<section id="screen-admin" class="screen">
+  <section class="section">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow">OWNER AREA</span>
+        <h2>Admin Panel</h2>
+        <p>Manage service names, prices, descriptions and product photos.</p>
       </div>
 
-      <p class="note">Edit names, prices and descriptions.</p>
-      <div id="adminEditor"></div>
+      <div class="admin-badge">
+        Admin changes are stored in this browser only. This demo login is not secure for a public website.
+      </div>
 
-      <button class="btn primary" type="button" style="margin-top:16px" onclick="saveAdminChanges()">Save Changes</button>
-      <button class="btn light" type="button" style="margin-top:16px" onclick="adminLogout()">Log Out</button>
+      <div id="adminLogin" class="form-card admin-form">
+        <h3>🔐 Admin Access</h3>
+        <label for="adminPassword">Enter Admin Password</label>
+        <input type="password" id="adminPassword" placeholder="Enter password" autocomplete="current-password" style="width:100%;box-sizing:border-box;padding:12px;margin-top:8px;border:1px solid #ccc;border-radius:8px">
+        <button class="btn primary" type="button" style="width:100%;margin-top:12px" onclick="adminLogin()">Login</button>
+      </div>
+
+      <div id="adminDashboard" style="display:none">
+        <div class="panel">
+          <div class="admin-tabs">
+            <button class="selected" onclick="adminTab('chimney',this)">Chimney</button>
+            <button onclick="adminTab('stove',this)">Gas Stove</button>
+            <button onclick="adminTab('parts',this)">Spare Parts</button>
+          </div>
+          <p class="note">Edit names, prices and descriptions. Changes stay in this browser only.</p>
+          <div id="adminEditor"></div>
+          <button class="btn primary" type="button" style="margin-top:16px" onclick="saveAdminChanges()">Save Changes</button>
+          <button class="btn light" type="button" style="margin-top:16px" onclick="adminLogout()">Log Out</button>
+        </div>
+      </div>
     </div>
-  </div>
-
-</div>
-
   </section>
-</section><section id="screen-contact" class="screen"><section class="contact"><div class="container"><div style="font-size:40px">📞</div><h2>Contact Us</h2><p>Need chimney cleaning, gas stove repair or spare parts?</p><p>We are happy to help you!</p><div class="contact-number">📱 9080694267</div><div class="contact-buttons"><a class="btn light" href="tel:+919080694267">📞 Call Now</a><a class="btn green" href="https://wa.me/919080694267" target="_blank" rel="noopener">💬 WhatsApp Us</a></div><p>Chimney & Stove Care — reliable kitchen appliance service.</p></div></section></section>
+</section>
+
+<section id="screen-contact" class="screen"><section class="contact"><div class="container"><div style="font-size:40px">📞</div><h2>Contact Us</h2><p>Need chimney cleaning, gas stove repair or spare parts?</p><p>We are happy to help you!</p><div class="contact-number">📱 9080694267</div><div class="contact-buttons"><a class="btn light" href="tel:+919080694267">📞 Call Now</a><a class="btn green" href="https://wa.me/919080694267" target="_blank" rel="noopener">💬 WhatsApp Us</a></div><p>Chimney &amp; Stove Care — reliable kitchen appliance service.</p></div></section></section>
 </main><footer>© <span id="year"></span> Chimney & Stove Care. All rights reserved.</footer><div class="toast" id="toast"></div>
 <script>
 const WHATSAPP_NUMBER='919080694267'; // Kept only for the contact button; bookings are NOT sent to WhatsApp.
