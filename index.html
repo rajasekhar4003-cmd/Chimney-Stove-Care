@@ -64,7 +64,11 @@ header{background:#ffffffed;position:sticky;top:0;z-index:20;box-shadow:0 3px 15
   </section>
 </section>
 
-<section id="screen-history" class="screen"><section class="section"><div class="container"><div class="toolbar"><button class="btn light" onclick="showScreen('home')">← Home</button><button class="btn primary" onclick="showScreen('categories')">Book a Service</button></div><div class="section-head"><span class="eyebrow">YOUR ORDERS</span><h2>My Bookings / Order History</h2><p>Bookings saved in this browser on this device.</p></div><div class="panel"><div class="field" style="max-width:420px;margin-bottom:16px"><label for="historyPhone">Enter the mobile number used for booking</label><input id="historyPhone" type="tel" inputmode="numeric" maxlength="10" placeholder="10-digit mobile number"><button class="btn primary" type="button" onclick="renderHistory()">View My Bookings</button></div><div id="historyList"><p class="note">Enter your mobile number to view saved bookings.</p></div></div><p class="note">Note: This static website saves history only in this browser. For secure history across devices, a database and customer verification are required.</p></div></section></section>
+<section id="screen-history" class="screen"><section class="section"><div class="container"><div class="toolbar"><button class="btn light" onclick="showScreen('home')">← Home</button><button class="btn primary" onclick="showScreen('categories')">Book a Service</button></div><div class="section-head"><span class="eyebrow">YOUR ORDERS</span><h2>My Bookings / Order History</h2><p>Bookings saved in this browser on this device.</p></div><div class="panel">
+  <div id="historyList">
+    <p class="note">Loading your bookings...</p>
+  </div>
+</div></div><div id="historyList"><p class="note">Enter your mobile number to view saved bookings.</p></div></div><p class="note">Note: This static website saves history only in this browser. For secure history across devices, a database and customer verification are required.</p></div></section></section>
 
 <section id="screen-admin" class="screen">
   <section class="section">
