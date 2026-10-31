@@ -64,11 +64,27 @@ header{background:#ffffffed;position:sticky;top:0;z-index:20;box-shadow:0 3px 15
   </section>
 </section>
 
-<section id="screen-history" class="screen"><section class="section"><div class="container"><div class="toolbar"><button class="btn light" onclick="showScreen('home')">← Home</button><button class="btn primary" onclick="showScreen('categories')">Book a Service</button></div><div class="section-head"><span class="eyebrow">YOUR ORDERS</span><h2>My Bookings / Order History</h2><p>Bookings saved in this browser on this device.</p></div><div class="panel">
-  <div id="historyList">
-    <p class="note">Loading your bookings...</p>
-  </div>
-</div></div><div id="historyList"><p class="note">Enter your mobile number to view saved bookings.</p></div></div><p class="note">Note: This static website saves history only in this browser. For secure history across devices, a database and customer verification are required.</p></div></section></section>
+<section id="screen-history" class="screen">
+  <section class="section">
+    <div class="container">
+      <div class="toolbar">
+        <button class="btn light" onclick="showScreen('home')">← Home</button>
+        <button class="btn primary" onclick="showScreen('categories')">Book a Service</button>
+      </div>
+      <div class="section-head">
+        <span class="eyebrow">YOUR ORDERS</span>
+        <h2>My Bookings / Order History</h2>
+        <p>Your saved bookings.</p>
+      </div>
+      <div class="panel">
+        <div id="historyList">
+          <p class="note">Loading your bookings...</p>
+        </div>
+      </div>
+      <p class="note">Booking history currently available only in this browser on this device.</p>
+    </div>
+  </section>
+</section>
 
 <section id="screen-admin" class="screen">
   <section class="section">
@@ -143,7 +159,7 @@ let catalog=loadCatalog(),cart=JSON.parse(localStorage.getItem('csc_cart')||'[]'
 function loadCatalog(){try{return JSON.parse(localStorage.getItem('csc_catalog'))||structuredClone(DEFAULT_DATA)}catch(e){return JSON.parse(JSON.stringify(DEFAULT_DATA))}}
 function money(n){return '₹'+Number(n||0).toLocaleString('en-IN')}
 function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2600)}
-function showScreen(name){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));const target=document.getElementById('screen-'+name);if(target)target.classList.add('active');if(name==='cart')renderCart();if(name==='checkout')renderCheckoutSummary();if(name==='admin'&&sessionStorage.getItem('csc_admin')==='yes'){document.getElementById('adminLogin').style.display='none';document.getElementById('adminDashboard').style.display='block';renderAdminEditor()}window.scrollTo({top:0,behavior:'smooth'})}
+function showScreen(name){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));const target=document.getElementById('screen-'+name);if(target)target.classList.add('active');if(name==='cart')renderCart();if(name==='checkout')renderCheckoutSummary();if(name==='history')renderHistory();if(name==='admin'&&sessionStorage.getItem('csc_admin')==='yes'){document.getElementById('adminLogin').style.display='none';document.getElementById('adminDashboard').style.display='block';renderAdminEditor()}window.scrollTo({top:0,behavior:'smooth'})}
 function categoryHTML(icon,title,desc,screen){return `<article class="category-card"><div class="category-icon">${icon}</div><h3>${title}</h3><p>${desc}</p><button class="btn primary" onclick="showScreen('${screen}')">${screen==='parts'?'Buy →':'Book Now →'}</button></article>`}
 function renderCategories(){const html=categoryHTML('🧽','Chimney Services','Cleaning, repair, installation and maintenance.','chimney')+categoryHTML('🔥','Gas Stove Services','Stove repair, burner cleaning and installation.','stove')+categoryHTML('🧰','Spare Parts','Browse common chimney and stove spare parts.','parts');document.getElementById('homeCategories').innerHTML=html;document.getElementById('categoryCards').innerHTML=html}
 function itemCard(item){const img=item.image?`<img src="${escapeAttr(item.image)}" alt="${escapeAttr(item.name)}" loading="lazy">`:item.icon||'🔧';const row=cart.find(x=>x.id===item.id);const qty=row?row.qty:0;return `<article class="card"><div class="card-img">${img}</div><h3>${escapeHTML(item.name)}</h3><p>${escapeHTML(item.desc||'Kitchen appliance service or spare part.')}</p><div class="price-row"><span class="price">${money(item.price)}</span><button class="add" onclick="addToCart('${item.id}')">${qty?'✓ Added':'+ Add'}</button></div><div class="qty" style="justify-content:center;margin-top:5px"><button aria-label="Decrease quantity" onclick="changeQty('${item.id}',-1)">−</button><strong>Qty: ${qty}</strong><button aria-label="Increase quantity" onclick="changeQty('${item.id}',1)">+</button></div><button id="book-${item.id}" class="book-now ${qty?'visible':''}" onclick="bookNow('${item.id}')">📅 Book Now → </button></article>`}
@@ -206,11 +222,12 @@ function saveHeroImage(){if(sessionStorage.getItem('csc_admin')!=='yes'){toast('
 function applyHeroImage(){const url=localStorage.getItem('csc_hero_image');const hero=document.querySelector('.hero');const img=document.querySelector('.hero-circle img');if(url){if(hero)hero.style.backgroundImage=`linear-gradient(115deg,rgba(5,43,52,.91),rgba(7,127,140,.78)),url("${url.replace(/["\\]/g,'')}" )`;if(img)img.src=url}else{if(hero)hero.style.backgroundImage='';if(img)img.src='https://images.unsplash.com/photo-1556911220-bff31c812dba?auto=format&fit=crop&w=1200&q=90'}}
 function renderHistory() {
   const box = document.getElementById('historyList');
-  let orders = [];
+  if (!box) return;
 
+  let orders = [];
   try {
     orders = JSON.parse(localStorage.getItem('csc_orders') || '[]');
-  } catch (e) {
+  } catch (error) {
     orders = [];
   }
 
@@ -219,19 +236,22 @@ function renderHistory() {
     return;
   }
 
-  box.innerHTML = orders.map(o => `
+  box.innerHTML = orders.map(order => `
     <article class="card" style="margin:12px 0">
-      <h3>${escapeHTML(o.orderId || 'Booking')}</h3>
-      <p><strong>Customer:</strong> ${escapeHTML(o.name || '')}</p>
-      <p><strong>Booking Date:</strong> ${escapeHTML(o.createdAt || '')}</p>
-      <p><strong>Items:</strong> ${escapeHTML((o.items || []).join('; '))}</p>
-      <p><strong>Total:</strong> ${money(o.total)}</p>
-      <p><strong>Preferred Date:</strong> ${escapeHTML(o.date || '')}</p>
-      <p><strong>Preferred Time:</strong> ${escapeHTML(o.time || '')}</p>
-      <p><strong>Status:</strong> ${escapeHTML(o.status || 'Submitted')}</p>
+      <h3>${escapeHTML(order.orderId || 'Booking')}</h3>
+      <p><strong>Customer:</strong> ${escapeHTML(order.name || '')}</p>
+      <p><strong>Booking Date:</strong> ${escapeHTML(order.createdAt || '')}</p>
+      <p><strong>Items:</strong> ${escapeHTML((order.items || []).join('; '))}</p>
+      <p><strong>Total:</strong> ${money(order.total)}</p>
+      <p><strong>Type:</strong> ${escapeHTML(order.date && order.date.startsWith('Not required') ? 'Spare parts order' : 'Service booking')}</p>
+      <p><strong>Preferred Date:</strong> ${escapeHTML(order.date || '')}</p>
+      <p><strong>Preferred Time:</strong> ${escapeHTML(order.time || '')}</p>
+      <p><strong>Address:</strong> ${escapeHTML(order.address || '')}</p>
+      <p><strong>Payment:</strong> ${escapeHTML(order.payment || '')}</p>
+      <p><strong>Status:</strong> ${escapeHTML(order.status || 'Submitted')}</p>
     </article>
   `).join('');
-}const box=document.getElementById('historyList');if(!/^[0-9]{10}$/.test(phone)){box.innerHTML='<p class="note">Please enter the 10-digit mobile number used for booking.</p>';return}let orders=[];try{orders=JSON.parse(localStorage.getItem('csc_orders')||'[]')}catch(e){}const matches=orders.filter(o=>o.phone===phone);if(!matches.length){box.innerHTML='<p class="empty">No saved bookings found for this number in this browser.</p>';return}box.innerHTML=matches.map(o=>`<article class="card" style="margin:12px 0"><h3>${escapeHTML(o.orderId||'Booking')}</h3><p><strong>Date:</strong> ${escapeHTML(o.createdAt||'')}</p><p><strong>Items:</strong> ${escapeHTML((o.items||[]).join('; '))}</p><p><strong>Total:</strong> ${money(o.total)}</p><p><strong>Type:</strong> ${escapeHTML(o.date&&o.date.startsWith('Not required')?'Spare parts order':'Service booking')}</p><p><strong>Preferred date/time:</strong> ${escapeHTML((o.date||'')+' / '+(o.time||''))}</p><p><strong>Address:</strong> ${escapeHTML(o.address||'')}</p><p><strong>Payment:</strong> ${escapeHTML(o.payment||'')}</p><p><strong>Status:</strong> ${escapeHTML(o.status||'Submitted')}</p></article>`).join('')}
+}
 function adminLogout(){sessionStorage.removeItem('csc_admin');document.getElementById('adminLogin').style.display='block';document.getElementById('adminDashboard').style.display='none';document.getElementById('adminPassword').value=''}
 function adminTab(key,btn){adminCategory=key;document.querySelectorAll('.admin-tabs button').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected');renderAdminEditor()}
 function renderAdminEditor(){const items=catalog[adminCategory]||[];document.getElementById('adminEditor').innerHTML='<div class="admin-list">'+items.map((item,i)=>`<div class="admin-item"><div><label>Name</label><input data-i="${i}" data-field="name" value="${escapeAttr(item.name)}"><label>Description</label><input data-i="${i}" data-field="desc" value="${escapeAttr(item.desc||'')}"><label>Image URL (optional)</label><input data-i="${i}" data-field="image" value="${escapeAttr(item.image||'')}" placeholder="https://..."></div><div><label>Price (₹)</label><input type="number" min="0" data-i="${i}" data-field="price" value="${Number(item.price)||0}"></div><div><label>Icon</label><input data-i="${i}" data-field="icon" value="${escapeAttr(item.icon||'🔧')}"><p class="note">Item ${i+1}</p></div></div>`).join('')+'</div>'}
