@@ -204,7 +204,34 @@ function adminLogin(){const saved=localStorage.getItem('csc_admin_password')||'a
 function changeAdminPassword(){if(sessionStorage.getItem('csc_admin')!=='yes'){toast('Please log in again.');return}const oldp=document.getElementById('oldAdminPassword').value,newp=document.getElementById('newAdminPassword').value,confirm=document.getElementById('confirmAdminPassword').value;const saved=localStorage.getItem('csc_admin_password')||'admin123';if(oldp!==saved){toast('Current password is incorrect.');return}if(newp.length<8){toast('New password must be at least 8 characters.');return}if(newp!==confirm){toast('New passwords do not match.');return}localStorage.setItem('csc_admin_password',newp);['oldAdminPassword','newAdminPassword','confirmAdminPassword'].forEach(id=>document.getElementById(id).value='');toast('Password updated in this browser.')}
 function saveHeroImage(){if(sessionStorage.getItem('csc_admin')!=='yes'){toast('Please log in again.');return}const url=document.getElementById('heroImageUrl').value.trim();if(url&&!/^https?:\/\//i.test(url)){toast('Please enter a public http/https image URL.');return}if(url)localStorage.setItem('csc_hero_image',url);else localStorage.removeItem('csc_hero_image');applyHeroImage();toast('Hero image saved in this browser.')}
 function applyHeroImage(){const url=localStorage.getItem('csc_hero_image');const hero=document.querySelector('.hero');const img=document.querySelector('.hero-circle img');if(url){if(hero)hero.style.backgroundImage=`linear-gradient(115deg,rgba(5,43,52,.91),rgba(7,127,140,.78)),url("${url.replace(/["\\]/g,'')}" )`;if(img)img.src=url}else{if(hero)hero.style.backgroundImage='';if(img)img.src='https://images.unsplash.com/photo-1556911220-bff31c812dba?auto=format&fit=crop&w=1200&q=90'}}
-function renderHistory(){const phone=(document.getElementById('historyPhone').value||'').trim();const box=document.getElementById('historyList');if(!/^[0-9]{10}$/.test(phone)){box.innerHTML='<p class="note">Please enter the 10-digit mobile number used for booking.</p>';return}let orders=[];try{orders=JSON.parse(localStorage.getItem('csc_orders')||'[]')}catch(e){}const matches=orders.filter(o=>o.phone===phone);if(!matches.length){box.innerHTML='<p class="empty">No saved bookings found for this number in this browser.</p>';return}box.innerHTML=matches.map(o=>`<article class="card" style="margin:12px 0"><h3>${escapeHTML(o.orderId||'Booking')}</h3><p><strong>Date:</strong> ${escapeHTML(o.createdAt||'')}</p><p><strong>Items:</strong> ${escapeHTML((o.items||[]).join('; '))}</p><p><strong>Total:</strong> ${money(o.total)}</p><p><strong>Type:</strong> ${escapeHTML(o.date&&o.date.startsWith('Not required')?'Spare parts order':'Service booking')}</p><p><strong>Preferred date/time:</strong> ${escapeHTML((o.date||'')+' / '+(o.time||''))}</p><p><strong>Address:</strong> ${escapeHTML(o.address||'')}</p><p><strong>Payment:</strong> ${escapeHTML(o.payment||'')}</p><p><strong>Status:</strong> ${escapeHTML(o.status||'Submitted')}</p></article>`).join('')}
+function renderHistory() {
+  const box = document.getElementById('historyList');
+  let orders = [];
+
+  try {
+    orders = JSON.parse(localStorage.getItem('csc_orders') || '[]');
+  } catch (e) {
+    orders = [];
+  }
+
+  if (!orders.length) {
+    box.innerHTML = '<p class="empty">No bookings found in this browser.</p>';
+    return;
+  }
+
+  box.innerHTML = orders.map(o => `
+    <article class="card" style="margin:12px 0">
+      <h3>${escapeHTML(o.orderId || 'Booking')}</h3>
+      <p><strong>Customer:</strong> ${escapeHTML(o.name || '')}</p>
+      <p><strong>Booking Date:</strong> ${escapeHTML(o.createdAt || '')}</p>
+      <p><strong>Items:</strong> ${escapeHTML((o.items || []).join('; '))}</p>
+      <p><strong>Total:</strong> ${money(o.total)}</p>
+      <p><strong>Preferred Date:</strong> ${escapeHTML(o.date || '')}</p>
+      <p><strong>Preferred Time:</strong> ${escapeHTML(o.time || '')}</p>
+      <p><strong>Status:</strong> ${escapeHTML(o.status || 'Submitted')}</p>
+    </article>
+  `).join('');
+}const box=document.getElementById('historyList');if(!/^[0-9]{10}$/.test(phone)){box.innerHTML='<p class="note">Please enter the 10-digit mobile number used for booking.</p>';return}let orders=[];try{orders=JSON.parse(localStorage.getItem('csc_orders')||'[]')}catch(e){}const matches=orders.filter(o=>o.phone===phone);if(!matches.length){box.innerHTML='<p class="empty">No saved bookings found for this number in this browser.</p>';return}box.innerHTML=matches.map(o=>`<article class="card" style="margin:12px 0"><h3>${escapeHTML(o.orderId||'Booking')}</h3><p><strong>Date:</strong> ${escapeHTML(o.createdAt||'')}</p><p><strong>Items:</strong> ${escapeHTML((o.items||[]).join('; '))}</p><p><strong>Total:</strong> ${money(o.total)}</p><p><strong>Type:</strong> ${escapeHTML(o.date&&o.date.startsWith('Not required')?'Spare parts order':'Service booking')}</p><p><strong>Preferred date/time:</strong> ${escapeHTML((o.date||'')+' / '+(o.time||''))}</p><p><strong>Address:</strong> ${escapeHTML(o.address||'')}</p><p><strong>Payment:</strong> ${escapeHTML(o.payment||'')}</p><p><strong>Status:</strong> ${escapeHTML(o.status||'Submitted')}</p></article>`).join('')}
 function adminLogout(){sessionStorage.removeItem('csc_admin');document.getElementById('adminLogin').style.display='block';document.getElementById('adminDashboard').style.display='none';document.getElementById('adminPassword').value=''}
 function adminTab(key,btn){adminCategory=key;document.querySelectorAll('.admin-tabs button').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected');renderAdminEditor()}
 function renderAdminEditor(){const items=catalog[adminCategory]||[];document.getElementById('adminEditor').innerHTML='<div class="admin-list">'+items.map((item,i)=>`<div class="admin-item"><div><label>Name</label><input data-i="${i}" data-field="name" value="${escapeAttr(item.name)}"><label>Description</label><input data-i="${i}" data-field="desc" value="${escapeAttr(item.desc||'')}"><label>Image URL (optional)</label><input data-i="${i}" data-field="image" value="${escapeAttr(item.image||'')}" placeholder="https://..."></div><div><label>Price (₹)</label><input type="number" min="0" data-i="${i}" data-field="price" value="${Number(item.price)||0}"></div><div><label>Icon</label><input data-i="${i}" data-field="icon" value="${escapeAttr(item.icon||'🔧')}"><p class="note">Item ${i+1}</p></div></div>`).join('')+'</div>'}
